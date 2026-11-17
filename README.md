@@ -12,6 +12,7 @@ repositories.
 | `CODE_OF_CONDUCT.md` | Community behavior standards |
 | `.github/pull_request_template.md` | Default pull request checklist |
 | `.github/ISSUE_TEMPLATE/` | Default issue forms |
+| `.github/workflows/reusable-hygiene.yml` | Reusable workflow wrapper for repository hygiene checks |
 | `scripts/check_hygiene.py` | Local documentation and leak-prevention check |
 
 Reusable pull request governance actions live in
@@ -22,6 +23,9 @@ Reusable pull request governance actions live in
 ```sh
 python3 scripts/check_hygiene.py --strict
 ```
+
+Public and private repositories may also call `.github/workflows/reusable-hygiene.yml`
+pinned to a reviewed commit SHA.
 
 ## License
 
