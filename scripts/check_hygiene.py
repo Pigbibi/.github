@@ -541,12 +541,15 @@ def check_gitignore(root: Path) -> None:
         err(".gitignore still unignores retired .github/engineering.md")
 
 
+LICENSE_FILES = ("LICENSE", "LICENSE.md", "LICENSE.txt")
+
+
 def check_opensource_files(root: Path) -> None:
     for rel in REQUIRED_OPEN_SOURCE:
         if not (root / rel).is_file():
             err(f"{rel} is missing; an open-source repository must ship it")
 
-    if not any((root / name).is_file() for name in ("LICENSE", "LICENSE.md", "LICENSE.txt")):
+    if not any((root / name).is_file() for name in LICENSE_FILES):
         err("LICENSE is missing; an open-source repository must ship it")
 
     issue_dir = root / ".github" / "ISSUE_TEMPLATE"
@@ -556,16 +559,11 @@ def check_opensource_files(root: Path) -> None:
 
 def check_docs_baseline(root: Path, private: bool = False) -> None:
     """Require community health files for public repos and SECURITY.md for private ones."""
-    has_license = any((root / name).exists() for name in ("LICENSE", "LICENSE.md", "LICENSE.txt"))
-    if not private and has_license:
-        required = ["CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md"]
-        kind = "public"
-    else:
-        required = ["SECURITY.md"]
-        kind = "private"
-    missing = [name for name in required if not (root / name).exists()]
-    if missing:
-        err(f"{kind} repository is missing {', '.join(missing)}")
+    if private:
+        if not (root / "SECURITY.md").is_file():
+            err("private repository is missing SECURITY.md")
+        return
+    check_opensource_files(root)
 
 
 SECRET_PATTERNS = [
@@ -624,22 +622,22 @@ def main(argv: list[str] | None = None) -> int:
     check_bilingual_pair(root)
     check_comment_language(root)
     check_gitignore(root)
-    if args.private:
-        check_docs_baseline(root, private=True)
-    else:
-        check_opensource_files(root)
+    check_docs_baseline(root, private=args.private)
     check_secrets(root)
 
-    for w in sorted(set(warnings)):
+    unique_warnings = sorted(set(warnings))
+    unique_errors = sorted(set(errors))
+
+    for w in unique_warnings:
         print(f"warning  {w}")
-    for e in sorted(set(errors)):
+    for e in unique_errors:
         print(f"error    {e}")
 
-    print(f"\n{len(set(errors))} errors, {len(set(warnings))} warnings")
+    print(f"\n{len(unique_errors)} errors, {len(unique_warnings)} warnings")
 
-    if errors:
+    if unique_errors:
         return 1
-    if args.strict and warnings:
+    if args.strict and unique_warnings:
         return 1
     return 0
 

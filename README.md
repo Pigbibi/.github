@@ -13,6 +13,7 @@ repositories.
 | `.github/pull_request_template.md` | Default pull request checklist |
 | `.github/ISSUE_TEMPLATE/` | Default issue forms |
 | `.github/workflows/reusable-hygiene.yml` | Reusable workflow wrapper for repository hygiene checks |
+| `actions/repository-hygiene/action.yml` | Composite action for running repository hygiene checks in caller jobs |
 | `scripts/check_hygiene.py` | Local documentation and leak-prevention check |
 
 Reusable pull request governance actions live in
@@ -24,8 +25,8 @@ Reusable pull request governance actions live in
 python3 scripts/check_hygiene.py --strict
 ```
 
-Public and private repositories may also call `.github/workflows/reusable-hygiene.yml`
-pinned to a reviewed commit SHA.
+Consumer workflows can run `Pigbibi/.github/actions/repository-hygiene` (or call
+`.github/workflows/reusable-hygiene.yml`), pinned to a reviewed commit SHA.
 
 ## License
 
