@@ -27,8 +27,8 @@ python3 scripts/check_hygiene.py --strict
 
 ## Do not
 
-- Do not add reusable workflows or duplicate `pr-governance/` here; reusable PR
-  governance lives in `Pigbibi/PrGovernance`.
+- Do not duplicate `pr-governance/` here; reusable PR governance lives in
+  `Pigbibi/PrGovernance`.
 - Do not commit `docs/plans/`, `docs/audits/`, `docs/changes/`, or
   `docs/acceptance-policy.md`.
 - Update `README.md` only for user-visible file or workflow changes, and keep

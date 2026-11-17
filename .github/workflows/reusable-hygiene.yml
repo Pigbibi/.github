@@ -1,0 +1,66 @@
+name: Reusable repository hygiene
+
+on:
+  workflow_call:
+    inputs:
+      private:
+        description: Run private-repository checks (--private)
+        type: boolean
+        required: false
+        default: false
+      strict:
+        description: Treat warnings as errors (--strict)
+        type: boolean
+        required: false
+        default: true
+      english_only:
+        description: Reject .zh-CN.md documentation files (--english-only)
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  hygiene:
+    name: Repository hygiene
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: target
+          persist-credentials: false
+      - name: Resolve hygiene workflow ref
+        id: ref
+        shell: bash
+        env:
+          WORKFLOW_REF: ${{ github.workflow_ref }}
+        run: |
+          ref="${WORKFLOW_REF##*@}"
+          if [[ -z "$ref" || "$ref" == "$WORKFLOW_REF" ]]; then
+            ref="main"
+          fi
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Pigbibi/.github
+          ref: ${{ steps.ref.outputs.ref }}
+          path: hygiene-tools
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - name: Check repository hygiene
+        shell: bash
+        env:
+          OPT_PRIVATE: ${{ inputs.private }}
+          OPT_STRICT: ${{ inputs.strict }}
+          OPT_ENGLISH_ONLY: ${{ inputs.english_only }}
+        run: |
+          args=(--root target)
+          [[ "$OPT_PRIVATE" == "true" ]] && args+=(--private)
+          [[ "$OPT_STRICT" == "true" ]] && args+=(--strict)
+          [[ "$OPT_ENGLISH_ONLY" == "true" ]] && args+=(--english-only)
+          python3 hygiene-tools/scripts/check_hygiene.py "${args[@]}"
