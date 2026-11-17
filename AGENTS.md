@@ -16,6 +16,7 @@ hygiene configuration for `Pigbibi` repositories.
 ## Layout
 
 - `.github/` — default pull request template, issue templates, and CI workflow
+- `actions/repository-hygiene/` — shared composite action wrapping `scripts/check_hygiene.py`
 - `scripts/check_hygiene.py` — repository documentation and secret-hygiene checker
 - Root files — `LICENSE`, `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`
 

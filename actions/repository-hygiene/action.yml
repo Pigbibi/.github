@@ -1,0 +1,37 @@
+name: Repository hygiene
+description: Check repository documentation, naming, anti-leak, and agent-file hygiene
+inputs:
+  private:
+    description: Run private-repository checks (--private)
+    required: false
+    default: 'false'
+  strict:
+    description: Treat warnings as failures (--strict)
+    required: false
+    default: 'true'
+  english-only:
+    description: Reject .zh-CN.md documentation files (--english-only)
+    required: false
+    default: 'false'
+runs:
+  using: composite
+  steps:
+    - name: Check repository hygiene
+      shell: bash
+      env:
+        OPT_PRIVATE: ${{ inputs.private }}
+        OPT_STRICT: ${{ inputs.strict }}
+        OPT_ENGLISH_ONLY: ${{ inputs.english-only }}
+      run: |
+        set -euo pipefail
+        args=(--root "$GITHUB_WORKSPACE")
+        if [[ "$OPT_PRIVATE" == "true" ]]; then
+          args+=(--private)
+        fi
+        if [[ "$OPT_STRICT" == "true" ]]; then
+          args+=(--strict)
+        fi
+        if [[ "$OPT_ENGLISH_ONLY" == "true" ]]; then
+          args+=(--english-only)
+        fi
+        python3 "$GITHUB_ACTION_PATH/../../scripts/check_hygiene.py" "${args[@]}"

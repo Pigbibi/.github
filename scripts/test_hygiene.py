@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import contextlib
+import io
 import subprocess
 import sys
 import tempfile
@@ -98,6 +100,42 @@ class CheckHygieneTests(unittest.TestCase):
             res = self._run(root, "--private")
             self.assertEqual(res.returncode, 1)
             self.assertIn("docs/acceptance-policy.md", res.stdout)
+
+    def test_docs_baseline_private_vs_public(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "repo"
+            self._init_repo(root, public=True)
+            (root / ".github" / "pull_request_template.md").unlink()
+
+            hygiene.errors.clear()
+            hygiene.check_docs_baseline(root, private=False)
+            self.assertIn(
+                ".github/pull_request_template.md is missing; an open-source repository must ship it",
+                hygiene.errors,
+            )
+
+            hygiene.errors.clear()
+            hygiene.check_docs_baseline(root, private=True)
+            self.assertEqual(hygiene.errors, [])
+
+            (root / "SECURITY.md").unlink()
+            hygiene.check_docs_baseline(root, private=True)
+            self.assertEqual(hygiene.errors, ["private repository is missing SECURITY.md"])
+
+    def test_in_process_main_resets_global_state(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            dirty = Path(tmp) / "dirty"
+            clean = Path(tmp) / "clean"
+            self._init_repo(dirty)
+            (dirty / "SECURITY.md").unlink()
+            self._init_repo(clean)
+
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                self.assertEqual(hygiene.main(["--root", str(dirty), "--private"]), 1)
+                self.assertEqual(hygiene.main(["--root", str(clean), "--private", "--strict"]), 0)
+            self.assertEqual(hygiene.errors, [])
+            self.assertEqual(hygiene.warnings, [])
 
 
 if __name__ == "__main__":
