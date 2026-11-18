@@ -35,6 +35,11 @@ python3 scripts/check_hygiene.py --strict
 - Update `README.md` only for user-visible file or workflow changes, and keep
   all sections before `## License`.
 
+- Set an explicit short `retention-days` (1-7 days) on `actions/upload-artifact`
+  in private repositories to avoid exceeding the shared 500 MB storage quota.
+- Keep personal/campus Cloudflare resources separated from `QuantStrategyLab` live
+  trading edge accounts, and delete temporary smoke Workers after verification.
+
 <!-- content-boundary:begin -->
 - Use synthetic placeholders (`<owner>`, `<repo>`) instead of private IDs or
   real credentials.
