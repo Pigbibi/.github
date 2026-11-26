@@ -41,8 +41,8 @@ python3 scripts/check_hygiene.py --strict
   trading edge accounts, and delete temporary smoke Workers after verification.
 
 <!-- content-boundary:begin -->
-- Use synthetic placeholders (`<owner>`, `<repo>`) instead of private IDs or
-  real credentials.
+- Keep shared rules in `AGENTS.md`, with single-line `@AGENTS.md` pointers in root `CLAUDE.md` and `GEMINI.md`.
+- Public repos, PRs, issues, commits, and comments carry no personal details (nationality/tax residency, capital/account size, broker account, address, email, phone) or real infra IDs (GCP project number/ID, bucket, server IP/hostname, WIF path). Use `gs://<bucket>/...`, `<project-number>`, `<host>`, and synthetic placeholders (`<owner>`, `<repo>`); hashing or truncating IDs does not anonymize.
 - Judge whether a change is clean using `git diff` and `git ls-files`.
 <!-- content-boundary:end -->
 
